@@ -121,6 +121,22 @@ public class IDListMerger implements Runnable{
                 } catch (Exception ev) {
                     ErrorPanel.Senderror(ev.toString());
                 }
+                merged.setText("");
+                try {
+                    otherstringBuilder = new StringBuilder();
+                    BufferedReader reader = new BufferedReader(new FileReader("IDS.txt"));
+                    String line = null;
+                    ls = System.getProperty("line.separator");
+                    while ((line = reader.readLine()) != null) {
+                        otherstringBuilder.append(line);
+                        otherstringBuilder.append(ls);
+                    }
+                    reader.close();
+                    String Base = String.valueOf(otherstringBuilder);
+                    base.setText(Base);
+                }catch (Exception ev) {
+                    ErrorPanel.Senderror(ev.toString());
+                }
             }
         });
         jcomp2.addActionListener(new ActionListener() {
@@ -154,6 +170,7 @@ public class IDListMerger implements Runnable{
                 } catch (Exception ev) {
                     ErrorPanel.Senderror(ev.toString());
                 }
+                merged.setText("");
             }
         });
 

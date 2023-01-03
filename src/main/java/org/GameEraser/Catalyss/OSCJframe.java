@@ -6,6 +6,7 @@ import com.illposed.osc.transport.OSCPortInBuilder;
 import com.illposed.osc.transport.OSCPortOut;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import javax.swing.*;
@@ -31,7 +32,7 @@ import java.util.List;
 
 import static java.lang.Thread.sleep;
 
-public class OSCJframe implements Runnable {
+public class OSCJframe {
     private static boolean AFKMODE = false;
     public static OSCPortOut oscPortOut;
     public static boolean connected;
@@ -62,17 +63,31 @@ public class OSCJframe implements Runnable {
         SocketMessage = false;
         CustomSocketMessage = false;
         AFKMessages = false;
-
+        org.json.simple.JSONObject Json = new org.json.simple.JSONObject();
+        try {
+            FileReader fr = new FileReader("Settings.json");
+            JSONParser parser = new JSONParser();
+            Json = (org.json.simple.JSONObject) parser.parse(fr);
+        } catch (Exception ignored) {
+        }
+        try {
+            if (Json.containsKey("IP") && Json.containsKey("PORT")) {
+                System.out.println(connect(Json.get("IP").toString(), Json.get("PORT").toString()));
+            } else {
+                ErrorPanel.Senderror("No IP or PORT found using 127.0.0.1:9000");
+                System.out.println(connect("127.0.0.1", "9000"));
+            }
+        } catch (Exception e) {
+            ErrorPanel.Senderror("using default err:" + e.toString());
+            System.out.println(connect("127.0.0.1", "9000"));
+        }
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, OSCSerializeException {
         GameStarted = LocalDateTime.now();
         ReadSettings();
 
-        Thread thread = new Thread(new OSCJframe());
-        thread.start();
-        System.out.println("Is connected " + connect("127.0.0.1", "9000"));
-        oscPortOut.send(new OSCMessage("/avatar/parameters/_locked", Collections.singletonList(false)));
+        //oscPortOut.send(new OSCMessage("/avatar/parameters/_locked", Collections.singletonList(false)));
 
         OSCPortInBuilder port1 = new OSCPortInBuilder();
         port1.setPort(Integer.parseInt(port) + 1);
@@ -291,60 +306,17 @@ public class OSCJframe implements Runnable {
         menuItemInfoReader.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ErrorPanel.Senderror("Not Implemented");
+                //ErrorPanel.Senderror("Not Implemented");
+                Thread t =new Thread(new AvatarReader());
+                t.run();
             }
         });
 
         menuSetting.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                JPanel panel = new JPanel();
-                JRadioButton QuestMode = new JRadioButton("Quest Mode");
-                JLabel IpLab = new JLabel("Ip");
-                JTextField Ip = new JTextField("127.0.0.1");
-                JLabel portoutLAB = new JLabel("Port");
-                JTextField portout = new JTextField("9000");
-                JButton reload = new JButton("Reconnect");
-                QuestMode.addItemListener(new ItemListener() {
-                    @Override
-                    public void itemStateChanged(ItemEvent ev) {
-                        if (ev.getStateChange() == ItemEvent.SELECTED) {
-                            QuestModeB = true;
-                        } else if (ev.getStateChange() == ItemEvent.DESELECTED) {
-                            QuestModeB = false;
-                        }
-                    }
-                });
-                JButton.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            oscPortOut.disconnect();
-                        } catch (IOException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                        Main.connect(Ip.getText(), portout.getText());
-                    }
-                });
-                panel.add(QuestMode);
-                panel.add(IpLab);
-                panel.add(Ip);
-                panel.add(portoutLAB);
-                panel.add(portout);
-                panel.add(reload);
-
-                //adjust size and set layout
-                panel.setPreferredSize(new Dimension(944, 569));
-                BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
-                panel.setLayout(layout);
-
-                JFrame frame = new JFrame("Settings");
-                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                frame.add(panel);
-                frame.pack();
-                frame.setVisible(true);
-                frame.setLocationRelativeTo(null);
+                Thread t =new Thread(new SettingPanel());
+                t.run();
             }
         });
 
@@ -715,7 +687,8 @@ public class OSCJframe implements Runnable {
         try {
             addr = InetAddress.getByName(address);
         } catch (UnknownHostException e1) {
-            e1.printStackTrace();
+            ErrorPanel.Senderror("using default err:" + e1.toString());
+            System.out.println(connect("127.0.0.1", "9000"));
             return false;
         }
         // InetAddress addr = InetAddress.getByName("192.168.100.155");
@@ -724,7 +697,8 @@ public class OSCJframe implements Runnable {
             oscPortOut = new OSCPortOut(addr, Integer.parseInt(port));
             connected = true;
         } catch (NumberFormatException | IOException e1) {
-            e1.printStackTrace();
+            ErrorPanel.Senderror("using default err:" + e1.toString());
+            System.out.println(connect("127.0.0.1", "9000"));
             connected = false;
             return false;
         }
@@ -733,26 +707,4 @@ public class OSCJframe implements Runnable {
         return true;
     }
 
-    public void run() {
-        System.out.println("Is heartbeat " + connect(adress, port));
-        int onefourth = 0;
-        while (true) {
-            try {
-                if (onefourth == 4 && ((SocketMessage) || (AFKMODE && AFKMessages)))
-                    oscPortOut.send(new OSCMessage("/chatbox/input", Collections.singletonList(getSocketMessage(1))));
-                if (onefourth == 0 && ((SocketMessage) || (AFKMODE && AFKMessages)))
-                    oscPortOut.send(new OSCMessage("/chatbox/input", Collections.singletonList(getSocketMessage(2))));
-                sleep(800);
-                oscPortOut.send(new OSCMessage("/Heartbeat", Collections.singletonList(0)));
-                sleep(200);
-                oscPortOut.send(new OSCMessage("/Heartbeat", Collections.singletonList(1)));
-                onefourth = onefourth + 1;
-                if (onefourth == 8) onefourth = 0;
-            } catch (InterruptedException | OSCSerializeException | IOException e) {
-                Thread thread = new Thread(new OSCJframe());
-                thread.start();
-            }
-
-        }
-    }
 }
