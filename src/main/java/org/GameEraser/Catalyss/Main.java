@@ -6,6 +6,12 @@ import com.github.sarxos.webcam.WebcamPanel;
 import com.illposed.osc.OSCMessage;
 import com.illposed.osc.OSCSerializeException;
 import com.illposed.osc.transport.OSCPortOut;
+import io.github.vrchatapi.ApiClient;
+import io.github.vrchatapi.ApiException;
+import io.github.vrchatapi.Configuration;
+import io.github.vrchatapi.api.AuthenticationApi;
+import io.github.vrchatapi.auth.HttpBasicAuth;
+import io.github.vrchatapi.model.CurrentUser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -39,9 +45,33 @@ public class Main {
 
         }
     }
+    public static void VRCLogin() throws ApiException {
+        ApiClient defaultClient = Configuration.getDefaultApiClient();
+        AuthenticationApi authApi = new AuthenticationApi(defaultClient);
 
-    public static void main(String[] args) throws IOException, InterruptedException, OSCSerializeException {
+// Step 2. We begin with creating a Configuration
+// This contains the username and password for authentication.
+        HttpBasicAuth authHeader = (HttpBasicAuth) defaultClient.getAuthentication("authHeader");
+        authHeader.setUsername("knee melter");
+        authHeader.setPassword("recupliam@gmail.com");
+
+// Step 3. Call getCurrentUser on Authentication API.
+// This logs you in if the user isn't already logged in.
+        CurrentUser result = authApi.getCurrentUser();
+        System.out.println(result.getDisplayName());
+
+
+    }
+
+    public static void main(String[] args) throws IOException, InterruptedException, OSCSerializeException, ApiException {
         //Manual();
+        //Thread t =new Thread(new IDCREATOR());
+        //Thread t =new Thread(new VRCTrackerFormationg());
+        OSCJframe.main(args);
+        if(1==1) return;
+        Thread t =new Thread(new IDListMerger());
+        t.run();
+
 
         System.out.println("Debug true or false");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));

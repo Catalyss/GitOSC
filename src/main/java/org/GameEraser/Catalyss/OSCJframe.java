@@ -35,31 +35,33 @@ public class OSCJframe implements Runnable {
     private static boolean AFKMODE = false;
     public static OSCPortOut oscPortOut;
     public static boolean connected;
-    public static String port="9000";
-    public static String adress="127.0.0.1";
+    public static boolean QuestModeB;
+    public static String port = "9000";
+    public static String adress = "127.0.0.1";
     public static String CurrentAvatarID;
 
-    public static ArrayList<String> parmameterName= new ArrayList<String>();
-    public static ArrayList<String> parmameterType= new ArrayList<String>();
-    public static ArrayList<String> parmameterValue= new ArrayList<String>();
+    public static ArrayList<String> parmameterName = new ArrayList<String>();
+    public static ArrayList<String> parmameterType = new ArrayList<String>();
+    public static ArrayList<String> parmameterValue = new ArrayList<String>();
     public static JFrame window;
     public static JPanel pane;
-    public static String[] CustomMessage = new String[]{"Socket connected","Socket Heartbeat import || Rate 0/8 || Latency "+ new Random().nextInt(5) +"ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true","Socket Heartbeat output || Rate 4/8 || Latency  "+ new Random().nextInt(5) +"ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true","Socket Disconnected"};
+    public static String[] CustomMessage = new String[]{"Socket connected", "Socket Heartbeat import || Rate 0/8 || Latency " + new Random().nextInt(5) + "ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true", "Socket Heartbeat output || Rate 4/8 || Latency  " + new Random().nextInt(5) + "ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true", "Socket Disconnected"};
     public static int Posy;
     public static int Posx;
-    public static Boolean SocketMessage=false;
-    public static Boolean CustomSocketMessage=false;
-    public static LocalDateTime afkTime=null;
-    public static LocalDateTime GameStarted=null;
+    public static Boolean SocketMessage = false;
+    public static Boolean CustomSocketMessage = false;
+    public static LocalDateTime afkTime = null;
+    public static LocalDateTime GameStarted = null;
     private static boolean AFKMessages = false;
 
-    public static void Send(){
+    public static void Send() {
 
     }
-    public static void ReadSettings(){
-        SocketMessage=false;
-        CustomSocketMessage=false;
-        AFKMessages= false;
+
+    public static void ReadSettings() {
+        SocketMessage = false;
+        CustomSocketMessage = false;
+        AFKMessages = false;
 
     }
 
@@ -67,19 +69,19 @@ public class OSCJframe implements Runnable {
         GameStarted = LocalDateTime.now();
         ReadSettings();
 
-        Thread thread =new Thread(new OSCJframe());
+        Thread thread = new Thread(new OSCJframe());
         thread.start();
-        System.out.println("Is connected "+ connect("127.0.0.1","9000"));
+        System.out.println("Is connected " + connect("127.0.0.1", "9000"));
         oscPortOut.send(new OSCMessage("/avatar/parameters/_locked", Collections.singletonList(false)));
 
         OSCPortInBuilder port1 = new OSCPortInBuilder();
-        port1.setPort(Integer.parseInt(port)+1);
+        port1.setPort(Integer.parseInt(port) + 1);
         OSCPortIn oscPortIn = port1.build();
         OSCMessageListener messageListener = new OSCMessageListener() {
             @Override
             public void acceptMessage(OSCMessageEvent oscMessageEvent) {
                 try {
-                    MessageRecived(oscMessageEvent.getMessage().getAddress(),oscMessageEvent.getMessage().getArguments(),oscMessageEvent.getMessage().getInfo());
+                    MessageRecived(oscMessageEvent.getMessage().getAddress(), oscMessageEvent.getMessage().getArguments(), oscMessageEvent.getMessage().getInfo());
                 } catch (OSCSerializeException e) {
                     throw new RuntimeException(e);
                 } catch (IOException e) {
@@ -100,20 +102,25 @@ public class OSCJframe implements Runnable {
                 return true;
             }
         };
-        port1.addMessageListener(messageSelector,messageListener);
+        port1.addMessageListener(messageSelector, messageListener);
         oscPortIn.startListening();
 
         JMenuBar menuBar = new JMenuBar();
         JMenu menuFile = new JMenu("File");
-        JButton menuChat = new JButton("ChatBox");
+        JButton JButton = new JButton("Midi");
         JButton menuSetting = new JButton("Settings");
         JMenuItem menuItemExit = new JMenuItem("Load Current");
+        JMenu menuIDTOOL = new JMenu("Cache Tool");
+        JMenuItem menuItemCacheCleaner = new JMenuItem("Cache cleaner");
+        JMenuItem menuItemIDListMerger = new JMenuItem("ID Merger");
+        JMenuItem menuItemInfoReader = new JMenuItem("ID Reader");
         menuFile.add(menuItemExit);
+        MenuScroller.setScrollerFor(menuFile);
         menuItemExit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    if(CurrentAvatarID != null) AviChange();
+                    if (CurrentAvatarID != null) AviChange(null, null);
                 } catch (OSCSerializeException ex) {
                     throw new RuntimeException(ex);
                 } catch (IOException ex) {
@@ -128,13 +135,13 @@ public class OSCJframe implements Runnable {
             public void menuSelected(MenuEvent e) {
                 menuFile.removeAll();
                 menuFile.add(menuItemExit);
-                File folder = new File(System.getProperty("user.home")+"\\AppData\\LocalLow\\VRChat\\VRChat\\OSC");
+                File folder = new File(System.getProperty("user.home") + "\\AppData\\LocalLow\\VRChat\\VRChat\\OSC");
                 File[] listOfFiles = folder.listFiles();
                 File OSCFile = null;
                 for (int i = 0; i < listOfFiles.length; i++) {
                     if (listOfFiles[i].isFile()) {
                     } else if (listOfFiles[i].isDirectory()) {
-                        File folders = new File(System.getProperty("user.home")+"\\AppData\\LocalLow\\VRChat\\VRChat\\OSC\\"+listOfFiles[i].getName()+"\\Avatars");
+                        File folders = new File(System.getProperty("user.home") + "\\AppData\\LocalLow\\VRChat\\VRChat\\OSC\\" + listOfFiles[i].getName() + "\\Avatars");
                         File[] listOfFiless = folders.listFiles();
 
                         for (int is = 0; is < listOfFiless.length; is++) {
@@ -177,9 +184,9 @@ public class OSCJframe implements Runnable {
                                 menueavi.addActionListener(new ActionListener() {
                                     @Override
                                     public void actionPerformed(ActionEvent e) {
-                                        CurrentAvatarID=id;
+                                        CurrentAvatarID = id;
                                         try {
-                                            if(CurrentAvatarID != null) AviChange();
+                                            if (CurrentAvatarID != null) AviChange(null, null);
                                         } catch (OSCSerializeException ex) {
                                             throw new RuntimeException(ex);
                                         } catch (IOException ex) {
@@ -206,7 +213,18 @@ public class OSCJframe implements Runnable {
 
             }
         });
-        menuChat.addActionListener(new ActionListener() {
+        JButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    MidiSender.main(args);
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        //JButton menuChat = new JButton("ChatBox");
+        /*menuChat.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ///chatbox/input
@@ -252,78 +270,97 @@ public class OSCJframe implements Runnable {
             }
         });
 
+         */
+        menuIDTOOL.add(menuItemCacheCleaner);
+        menuIDTOOL.add(menuItemIDListMerger);
+        menuIDTOOL.add(menuItemInfoReader);
+        menuItemCacheCleaner.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Thread T3 = new Thread(new Extractor());
+                T3.start();
+            }
+        });
+        menuItemIDListMerger.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Thread t =new Thread(new IDListMerger());
+                t.run();
+            }
+        });
+        menuItemInfoReader.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ErrorPanel.Senderror("Not Implemented");
+            }
+        });
+
         menuSetting.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
 
                 JPanel panel = new JPanel();
-                JRadioButton jcomp1 = new JRadioButton ("Custom Socket / Heartbeat");
-                JRadioButton jcomp2 = new JRadioButton ("AFK Detection");
-                JRadioButton jcomp3 = new JRadioButton("SocketMessage");
-                jcomp3.setSelected(SocketMessage);
-                JRadioButton jcomp4 = new JRadioButton ("Force AFKMODE");
-                JButton jcomp5 = new JButton ("005");
+                JRadioButton QuestMode = new JRadioButton("Quest Mode");
+                JLabel IpLab = new JLabel("Ip");
+                JTextField Ip = new JTextField("127.0.0.1");
+                JLabel portoutLAB = new JLabel("Port");
+                JTextField portout = new JTextField("9000");
+                JButton reload = new JButton("Reconnect");
+                QuestMode.addItemListener(new ItemListener() {
+                    @Override
+                    public void itemStateChanged(ItemEvent ev) {
+                        if (ev.getStateChange() == ItemEvent.SELECTED) {
+                            QuestModeB = true;
+                        } else if (ev.getStateChange() == ItemEvent.DESELECTED) {
+                            QuestModeB = false;
+                        }
+                    }
+                });
+                JButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        try {
+                            oscPortOut.disconnect();
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                        Main.connect(Ip.getText(), portout.getText());
+                    }
+                });
+                panel.add(QuestMode);
+                panel.add(IpLab);
+                panel.add(Ip);
+                panel.add(portoutLAB);
+                panel.add(portout);
+                panel.add(reload);
 
                 //adjust size and set layout
-                panel.setPreferredSize (new Dimension (944, 569));
-                BoxLayout layout = new BoxLayout (panel, BoxLayout.Y_AXIS);
-                panel.setLayout (layout);
+                panel.setPreferredSize(new Dimension(944, 569));
+                BoxLayout layout = new BoxLayout(panel, BoxLayout.Y_AXIS);
+                panel.setLayout(layout);
 
-
-                jcomp1.setSelected(CustomSocketMessage);
-                jcomp2.setSelected(AFKMessages);
-                jcomp4.setSelected(AFKMODE);
-
-                jcomp3.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        SocketMessage=jcomp3.isSelected();
-                    }
-                });
-                jcomp4.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        AFKMODE=jcomp4.isSelected();
-                    }
-                });
-                jcomp1.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        CustomSocketMessage=jcomp1.isSelected();
-                    }
-                });
-                jcomp2.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        AFKMessages=jcomp2.isSelected();
-                    }
-                });
-                //add components
-                panel.add (jcomp1);
-                panel.add (jcomp2);
-                panel.add (jcomp3);
-                panel. add (jcomp4);
-                panel.add (jcomp5);
-
-                JFrame frame = new JFrame ("MyPanel");
-                frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
+                JFrame frame = new JFrame("Settings");
+                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 frame.add(panel);
                 frame.pack();
-                frame.setVisible (true);
+                frame.setVisible(true);
                 frame.setLocationRelativeTo(null);
             }
         });
 
+
         menuBar.add(menuFile);
-        menuBar.add(menuChat);
+        menuBar.add(menuIDTOOL);
+        //menuBar.add(menuChat);
         menuBar.add(menuSetting);
-        window = new JFrame("OSC CONTROL");
-        pane=new JPanel();
+        menuBar.add(JButton);
+        window = new JFrame("VRChat tool by Catalyss");
+        pane = new JPanel();
         pane.setOpaque(true);
         pane.setBackground(Color.GRAY);
-        window.add(pane).setBounds(0,0,200,800);
+        window.add(pane).setBounds(0, 0, 200, 800);
         window.setJMenuBar(menuBar);
-        window.setSize(430,485);
+        window.setSize(430, 485);
         window.setResizable(true);
         window.setDefaultCloseOperation(OnClose());
         window.addWindowListener(new WindowListener() {
@@ -335,7 +372,8 @@ public class OSCJframe implements Runnable {
             @Override
             public void windowClosing(WindowEvent e) {
                 try {
-                    if(SocketMessage)oscPortOut.send(new OSCMessage("/chatbox/input", Collections.singletonList(getSocketMessage(3))));
+                    if (SocketMessage)
+                        oscPortOut.send(new OSCMessage("/chatbox/input", Collections.singletonList(getSocketMessage(3))));
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 } catch (OSCSerializeException ex) {
@@ -372,14 +410,20 @@ public class OSCJframe implements Runnable {
         window.setLocationRelativeTo(null);
         window.setBackground(Color.GRAY);
     }
+
     public static int OnClose() throws OSCSerializeException, IOException {
-        if(SocketMessage)oscPortOut.send(new OSCMessage("/chatbox/input", Collections.singletonList(getSocketMessage(0))));
+        if (SocketMessage)
+            oscPortOut.send(new OSCMessage("/chatbox/input", Collections.singletonList(getSocketMessage(0))));
         return JFrame.EXIT_ON_CLOSE;
     }
-    public static String getSocketMessage(int I){
-        String[] DefaultSocketMessages= new String[]{"Socket connected","Socket Heartbeat import || Rate 0/8 || Latency "+ new Random().nextInt(5) +"ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true","Socket Heartbeat output || Rate 4/8 || Latency  "+ new Random().nextInt(5) +"ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true","Socket Disconnected"};
-        if(!CustomSocketMessage&&(!AFKMODE)){afkTime=null;return DefaultSocketMessages[I];}
-        if(AFKMODE&&AFKMessages) {
+
+    public static String getSocketMessage(int I) {
+        String[] DefaultSocketMessages = new String[]{"Socket connected", "Socket Heartbeat import || Rate 0/8 || Latency " + new Random().nextInt(5) + "ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true", "Socket Heartbeat output || Rate 4/8 || Latency  " + new Random().nextInt(5) + "ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true", "Socket Disconnected"};
+        if (!CustomSocketMessage && (!AFKMODE)) {
+            afkTime = null;
+            return DefaultSocketMessages[I];
+        }
+        if (AFKMODE && AFKMessages) {
             if (afkTime == null) afkTime = LocalDateTime.now();
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm:ss");
             Duration diff = Duration.between(afkTime, LocalDateTime.now());
@@ -390,7 +434,10 @@ public class OSCJframe implements Runnable {
             String[] CustomMessage = new String[]{"Script Loaded", " Currently AFK since " + "|" + dtf.format(afkTime) + " CEST| ", "AFK Time " + str, "Script Unloaded"};
             return CustomMessage[I];
         }
-        if(CustomMessage[I]==""||CustomMessage[I]==null){afkTime=null;return DefaultSocketMessages[I];}
+        if (CustomMessage[I] == "" || CustomMessage[I] == null) {
+            afkTime = null;
+            return DefaultSocketMessages[I];
+        }
         return CustomMessage[I];
     }
 
@@ -410,19 +457,27 @@ public class OSCJframe implements Runnable {
         parmameterType.add((String) info.getArgumentTypeTags());
         System.out.println(Address+" "+ Value+" "+info.getArgumentTypeTags());
          */
-        if(Address.equals("/avatar/parameters/AFK")){if(Value.get(0).toString().equals("true"))AFKMODE=true;else AFKMODE=false;}
-        if(Address.equals("/avatar/change")){CurrentAvatarID=(String) Value.get(0);System.out.println(CurrentAvatarID);AviChange();}
+        if (Address.equals("/avatar/parameters/AFK")) {
+            if (Value.get(0).toString().equals("true")) AFKMODE = true;
+            else AFKMODE = false;
+        }
+        if (Address.equals("/avatar/change")) {
+            CurrentAvatarID = (String) Value.get(0);
+            System.out.println(CurrentAvatarID);
+            AviChange(Address, info);
+        }
     }
-    public static void AviChange() throws OSCSerializeException, IOException, ParseException {
-        Posy=0;
-        Posx=0;
+
+    public static void AviChange(String Address, OSCMessageInfo info) throws OSCSerializeException, IOException, ParseException {
+        Posy = 0;
+        Posx = 0;
         pane.removeAll();
         pane.updateUI();
 
         pane.setBackground(Color.GRAY);
 
         oscPortOut.send(new OSCMessage("/avatar/parameters/_locked", Collections.singletonList(false)));
-
+        if (QuestModeB) {
         /*for(int i =0;i<parmameterType.toArray().length;i++){
             if(parmameterType.get(i).equals("T")) {
                 JRadioButton radioButton=new JRadioButton(parmameterName.get(i));
@@ -452,51 +507,60 @@ public class OSCJframe implements Runnable {
             }
         }
          */
+            JSONObject Parm = new JSONObject();
+            JSONObject Input = new JSONObject();
+            Input.append("address", Address);
+            Input.append("type", info.getArgumentTypeTags());
+            Parm.append("Input", Input);
+            System.out.println(Address + "  " + info.getArgumentTypeTags());
+            ParameterWindow(Parm);
+        }
+        if (!QuestModeB) {
 
-        File folder = new File(System.getProperty("user.home")+"\\AppData\\LocalLow\\VRChat\\VRChat\\OSC");
-        File[] listOfFiles = folder.listFiles();
-        File OSCFile = null;
-        for (int i = 0; i < listOfFiles.length; i++) {
-            if (listOfFiles[i].isFile()) {
-            } else if (listOfFiles[i].isDirectory()) {
+            File folder = new File(System.getProperty("user.home") + "\\AppData\\LocalLow\\VRChat\\VRChat\\OSC");
+            File[] listOfFiles = folder.listFiles();
+            File OSCFile = null;
+            for (int i = 0; i < listOfFiles.length; i++) {
+                if (listOfFiles[i].isFile()) {
+                } else if (listOfFiles[i].isDirectory()) {
 
-                File folders = new File(System.getProperty("user.home")+"\\AppData\\LocalLow\\VRChat\\VRChat\\OSC\\"+listOfFiles[i].getName()+"\\Avatars");
-                File[] listOfFiless = folders.listFiles();
+                    File folders = new File(System.getProperty("user.home") + "\\AppData\\LocalLow\\VRChat\\VRChat\\OSC\\" + listOfFiles[i].getName() + "\\Avatars");
+                    File[] listOfFiless = folders.listFiles();
 
-                for (int is = 0; is < listOfFiless.length; is++) {
-                    if (listOfFiless[is].isFile()) {
-                        if(listOfFiless[is].getName().contains(CurrentAvatarID))OSCFile = listOfFiless[is];
-                    } else if (listOfFiless[is].isDirectory()) {
+                    for (int is = 0; is < listOfFiless.length; is++) {
+                        if (listOfFiless[is].isFile()) {
+                            if (listOfFiless[is].getName().contains(CurrentAvatarID)) OSCFile = listOfFiless[is];
+                        } else if (listOfFiless[is].isDirectory()) {
+                        }
                     }
                 }
             }
-        }
 
-        assert OSCFile != null;
-        if(!OSCFile.exists())return;
-        BufferedReader reader = new BufferedReader(new FileReader(OSCFile));
-        StringBuilder stringBuilder = new StringBuilder();
-        String line = null;
-        String ls = System.getProperty("line.separator");
-        while ((line = reader.readLine()) != null) {
-            stringBuilder.append(line);
-            stringBuilder.append(ls);
-        }
-        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-        reader.close();
-        String jsonString = stringBuilder.toString();
-        int i = jsonString.indexOf("{");
-        jsonString = jsonString.substring(i);
-        JSONObject obj = new JSONObject(jsonString.trim());
+            assert OSCFile != null;
+            if (OSCFile == null || !OSCFile.exists()) return;
+            BufferedReader reader = new BufferedReader(new FileReader(OSCFile));
+            StringBuilder stringBuilder = new StringBuilder();
+            String line = null;
+            String ls = System.getProperty("line.separator");
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+                stringBuilder.append(ls);
+            }
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+            reader.close();
+            String jsonString = stringBuilder.toString();
+            int i = jsonString.indexOf("{");
+            jsonString = jsonString.substring(i);
+            JSONObject obj = new JSONObject(jsonString.trim());
 
-        String id = obj.getString("id");
-        String name = obj.getString("name");
-        JSONArray parameters = obj.getJSONArray("parameters");
-        System.out.println(id+"  "+name);
-        for (Object parameter : parameters) {
-            ParameterWindow((JSONObject) parameter);
+            String id = obj.getString("id");
+            String name = obj.getString("name");
+            JSONArray parameters = obj.getJSONArray("parameters");
+            System.out.println(id + "  " + name);
+            for (Object parameter : parameters) {
+                ParameterWindow((JSONObject) parameter);
+            }
         }
-
     }
 
     //"C:/Users/liamd/AppData/LocalLow/VRChat/VRChat/OSC/usr_0f13f3c9-e6d2-4f4b-99ba-74b870ceac44/Avatars/avtr_f2ffa90b-b73a-4d0a-9ce4-668b20e6f015.json"
@@ -504,7 +568,7 @@ public class OSCJframe implements Runnable {
     public static void ParameterWindow(JSONObject check) throws OSCSerializeException, IOException {
 
         oscPortOut.send(new OSCMessage("/avatar/parameters/_locked", Collections.singletonList(false)));
-        if(!check.has("input"))return;
+        if (!check.has("input")) return;
         JPanel Box = new JPanel();
         Box.setBackground(Color.DARK_GRAY);
         pane.setBackground(Color.GRAY);
@@ -522,27 +586,27 @@ public class OSCJframe implements Runnable {
 //This creates a nice frame.
         compound = BorderFactory.createCompoundBorder(raisedbevel, loweredbevel);
         Box.setBorder(compound);
-        JSONObject input= (JSONObject) check.get("input");
-        String type= input.getString("type");
+        JSONObject input = (JSONObject) check.get("input");
+        String type = input.getString("type");
 
-        if(type.equals("Bool")){
-            JRadioButton jButton = new JRadioButton(String.valueOf(check.get("name")).replace(" ","_"));
+        if (type.equals("Bool")) {
+            JRadioButton jButton = new JRadioButton(String.valueOf(check.get("name")).replace(" ", "_"));
             jButton.setBackground(Color.DARK_GRAY);
             jButton.setForeground(Color.LIGHT_GRAY);
             jButton.addItemListener(new ItemListener() {
                 @Override
                 public void itemStateChanged(ItemEvent ev) {
-                    if(ev.getStateChange()==ItemEvent.SELECTED){
+                    if (ev.getStateChange() == ItemEvent.SELECTED) {
                         try {
-                            oscPortOut.send(new OSCMessage("/avatar/parameters/"+String.valueOf(check.get("name")).replace(" ","_"), Collections.singletonList(true)));
+                            oscPortOut.send(new OSCMessage("/avatar/parameters/" + String.valueOf(check.get("name")).replace(" ", "_"), Collections.singletonList(true)));
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         } catch (OSCSerializeException e) {
                             throw new RuntimeException(e);
                         }
-                    } else if(ev.getStateChange()==ItemEvent.DESELECTED){
+                    } else if (ev.getStateChange() == ItemEvent.DESELECTED) {
                         try {
-                            oscPortOut.send(new OSCMessage("/avatar/parameters/"+String.valueOf(check.get("name")).replace(" ","_"), Collections.singletonList(false)));
+                            oscPortOut.send(new OSCMessage("/avatar/parameters/" + String.valueOf(check.get("name")).replace(" ", "_"), Collections.singletonList(false)));
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         } catch (OSCSerializeException e) {
@@ -553,22 +617,25 @@ public class OSCJframe implements Runnable {
                 }
             });
 
-            pane.add(jButton).setBounds(Posx,Posy,205,30);
-            Posy=Posy+30;
-            if(Posy>=400){Posy=0;Posx=Posx+205;}
+            pane.add(jButton).setBounds(Posx, Posy, 205, 30);
+            Posy = Posy + 30;
+            if (Posy >= 400) {
+                Posy = 0;
+                Posx = Posx + 205;
+            }
         }
-        if(type.equals("Float")){
-            JSlider jSlider =new JSlider(SwingConstants.HORIZONTAL,0,100,0);
-            JLabel jLabel = new JLabel(String.valueOf(check.get("name")).replace(" ","_")+" : 0");
-            jSlider.setName(String.valueOf(check.get("name")).replace(" ","_"));
-            Box.add(jSlider).setBounds(5,5,195,20);
-            Box.add(jLabel).setBounds(25,20,195,20);
+        if (type.equals("Float")) {
+            JSlider jSlider = new JSlider(SwingConstants.HORIZONTAL, 0, 100, 0);
+            JLabel jLabel = new JLabel(String.valueOf(check.get("name")).replace(" ", "_") + " : 0");
+            jSlider.setName(String.valueOf(check.get("name")).replace(" ", "_"));
+            Box.add(jSlider).setBounds(5, 5, 195, 20);
+            Box.add(jLabel).setBounds(25, 20, 195, 20);
             jSlider.addChangeListener(new ChangeListener() {
                 @Override
                 public void stateChanged(ChangeEvent e) {
-                    jLabel.setText(String.valueOf(check.get("name")).replace(" ","_")+" : "+jSlider.getValue());
+                    jLabel.setText(String.valueOf(check.get("name")).replace(" ", "_") + " : " + jSlider.getValue());
                     try {
-                        oscPortOut.send(new OSCMessage("/avatar/parameters/"+String.valueOf(check.get("name")).replace(" ","_"), Collections.singletonList(((float)(jSlider.getValue()))/100f)));
+                        oscPortOut.send(new OSCMessage("/avatar/parameters/" + String.valueOf(check.get("name")).replace(" ", "_"), Collections.singletonList(((float) (jSlider.getValue())) / 100f)));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     } catch (OSCSerializeException ex) {
@@ -581,22 +648,25 @@ public class OSCJframe implements Runnable {
             jSlider.setForeground(Color.LIGHT_GRAY);
             jLabel.setBackground(Color.DARK_GRAY);
 
-            pane.add(Box).setBounds(Posx,Posy,205,50);
-            Posy=Posy+50;
-            if(Posy>=400){Posy=0;Posx=Posx+205;}
+            pane.add(Box).setBounds(Posx, Posy, 205, 50);
+            Posy = Posy + 50;
+            if (Posy >= 400) {
+                Posy = 0;
+                Posx = Posx + 205;
+            }
         }
-        if(type.equals("Int")){
-            JSlider jSlider =new JSlider(SwingConstants.HORIZONTAL,0-Integer.MAX_VALUE,0+Integer.MAX_VALUE,0);
+        if (type.equals("Int")) {
+            JSlider jSlider = new JSlider(SwingConstants.HORIZONTAL, 0 - Integer.MAX_VALUE, 0 + Integer.MAX_VALUE, 0);
             jSlider.setEnabled(false);
-            JLabel jLabel = new JLabel(String.valueOf(check.get("name")).replace(" ","_")+" : 0");
+            JLabel jLabel = new JLabel(String.valueOf(check.get("name")).replace(" ", "_") + " : 0");
             JButton moar = new JButton("+");
             JButton less = new JButton("-");
-            moar.setSize(20,20);
-            less.setSize(20,20);
-            jSlider.setName(String.valueOf(check.get("name")).replace(" ","_"));
-            Box.add(jLabel).setBounds(35,5,180,20);
-            Box.add(less).setBounds(5,5,20,20);
-            Box.add(moar).setBounds(180,5,20,20);
+            moar.setSize(20, 20);
+            less.setSize(20, 20);
+            jSlider.setName(String.valueOf(check.get("name")).replace(" ", "_"));
+            Box.add(jLabel).setBounds(35, 5, 180, 20);
+            Box.add(less).setBounds(5, 5, 20, 20);
+            Box.add(moar).setBounds(180, 5, 20, 20);
             less.setBackground(Color.DARK_GRAY);
             less.setForeground(Color.LIGHT_GRAY);
             moar.setBackground(Color.DARK_GRAY);
@@ -607,9 +677,9 @@ public class OSCJframe implements Runnable {
             jSlider.addChangeListener(new ChangeListener() {
                 @Override
                 public void stateChanged(ChangeEvent e) {
-                    jLabel.setText(String.valueOf(check.get("name")).replace(" ","_")+" : "+jSlider.getValue());
+                    jLabel.setText(String.valueOf(check.get("name")).replace(" ", "_") + " : " + jSlider.getValue());
                     try {
-                        oscPortOut.send(new OSCMessage("/avatar/parameters/"+String.valueOf(check.get("name")).replace(" ","_"), Collections.singletonList((int)(jSlider.getValue()))));
+                        oscPortOut.send(new OSCMessage("/avatar/parameters/" + String.valueOf(check.get("name")).replace(" ", "_"), Collections.singletonList((int) (jSlider.getValue()))));
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     } catch (OSCSerializeException ex) {
@@ -620,40 +690,40 @@ public class OSCJframe implements Runnable {
             less.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    jSlider.setValue(jSlider.getValue()-1);
+                    jSlider.setValue(jSlider.getValue() - 1);
                 }
             });
             moar.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    jSlider.setValue(jSlider.getValue()+1);
+                    jSlider.setValue(jSlider.getValue() + 1);
                 }
             });
 
-            pane.add(Box).setBounds(Posx,Posy,205,30);
-            Posy=Posy+30;
-            if(Posy>=400){Posy=0;Posx=Posx+205;}
+            pane.add(Box).setBounds(Posx, Posy, 205, 30);
+            Posy = Posy + 30;
+            if (Posy >= 400) {
+                Posy = 0;
+                Posx = Posx + 205;
+            }
         }
 
     }
+
     public static boolean connect(String address, String port) {
         InetAddress addr;
-        try
-        {
+        try {
             addr = InetAddress.getByName(address);
-        } catch (UnknownHostException e1)
-        {
+        } catch (UnknownHostException e1) {
             e1.printStackTrace();
             return false;
         }
         // InetAddress addr = InetAddress.getByName("192.168.100.155");
         // OSCPortOut oscPortOut = new OSCPortOut();
-        try
-        {
+        try {
             oscPortOut = new OSCPortOut(addr, Integer.parseInt(port));
             connected = true;
-        } catch (NumberFormatException | IOException e1)
-        {
+        } catch (NumberFormatException | IOException e1) {
             e1.printStackTrace();
             connected = false;
             return false;
@@ -664,20 +734,22 @@ public class OSCJframe implements Runnable {
     }
 
     public void run() {
-        System.out.println("Is heartbeat "+ connect(adress,port));
-        int onefourth=0;
-        while(true){
+        System.out.println("Is heartbeat " + connect(adress, port));
+        int onefourth = 0;
+        while (true) {
             try {
-                if(onefourth==4&&((SocketMessage)||(AFKMODE&&AFKMessages))) oscPortOut.send(new OSCMessage("/chatbox/input", Collections.singletonList(getSocketMessage(1))));
-                if(onefourth==0&&((SocketMessage)||(AFKMODE&&AFKMessages))) oscPortOut.send(new OSCMessage("/chatbox/input", Collections.singletonList(getSocketMessage(2))));
+                if (onefourth == 4 && ((SocketMessage) || (AFKMODE && AFKMessages)))
+                    oscPortOut.send(new OSCMessage("/chatbox/input", Collections.singletonList(getSocketMessage(1))));
+                if (onefourth == 0 && ((SocketMessage) || (AFKMODE && AFKMessages)))
+                    oscPortOut.send(new OSCMessage("/chatbox/input", Collections.singletonList(getSocketMessage(2))));
                 sleep(800);
                 oscPortOut.send(new OSCMessage("/Heartbeat", Collections.singletonList(0)));
                 sleep(200);
                 oscPortOut.send(new OSCMessage("/Heartbeat", Collections.singletonList(1)));
-                onefourth=onefourth+1;
-                if(onefourth==8)onefourth=0;
+                onefourth = onefourth + 1;
+                if (onefourth == 8) onefourth = 0;
             } catch (InterruptedException | OSCSerializeException | IOException e) {
-                Thread thread =new Thread(new OSCJframe());
+                Thread thread = new Thread(new OSCJframe());
                 thread.start();
             }
 
