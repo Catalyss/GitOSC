@@ -21,7 +21,7 @@ import javax.swing.event.*;
 public class AvatarReader implements Runnable {
     private CurrentUser result;
     private AuthenticationApi authApi;
-    public void Login(){
+    private void Login(){
         JSONObject Json = new JSONObject();
         try {
             FileReader fr = new FileReader("Settings.json");

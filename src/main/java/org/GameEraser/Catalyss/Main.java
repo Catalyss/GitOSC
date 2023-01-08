@@ -19,13 +19,16 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.Raster;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.Thread.sleep;
@@ -67,6 +70,7 @@ public class Main {
         //Manual();
         //Thread t =new Thread(new IDCREATOR());
         //Thread t =new Thread(new VRCTrackerFormationg());
+
         OSCJframe.main(args);
         if(1==1) return;
         Thread t =new Thread(new IDListMerger());
@@ -79,7 +83,6 @@ public class Main {
 
         if(!name.contains("t"))System.out.println("Is connected "+ connect("127.0.0.1","9000"));
         else System.out.println("Is connected "+ connect("127.0.0.1","5234"));
-
 /*
         float SWB;
         float RGBs;
@@ -106,9 +109,6 @@ public class Main {
                 }
             }
              */
-
-
-
         List<Webcam> w = Webcam.getWebcams();
         Webcam webcam = w.get(0);
         webcam.setViewSize(new Dimension(176,144));

@@ -34,32 +34,29 @@ import static java.lang.Thread.sleep;
 
 public class OSCJframe {
     private static boolean AFKMODE = false;
-    public static OSCPortOut oscPortOut;
-    public static boolean connected;
-    public static boolean QuestModeB;
-    public static String port = "9000";
-    public static String adress = "127.0.0.1";
-    public static String CurrentAvatarID;
+    private static OSCPortOut oscPortOut;
+    private static boolean connected;
+    private static boolean QuestModeB;
+    private static final String adress = "127.0.0.1";
+    private static String CurrentAvatarID;
 
-    public static ArrayList<String> parmameterName = new ArrayList<String>();
-    public static ArrayList<String> parmameterType = new ArrayList<String>();
-    public static ArrayList<String> parmameterValue = new ArrayList<String>();
-    public static JFrame window;
-    public static JPanel pane;
-    public static String[] CustomMessage = new String[]{"Socket connected", "Socket Heartbeat import || Rate 0/8 || Latency " + new Random().nextInt(5) + "ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true", "Socket Heartbeat output || Rate 4/8 || Latency  " + new Random().nextInt(5) + "ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true", "Socket Disconnected"};
-    public static int Posy;
-    public static int Posx;
-    public static Boolean SocketMessage = false;
-    public static Boolean CustomSocketMessage = false;
-    public static LocalDateTime afkTime = null;
-    public static LocalDateTime GameStarted = null;
+    private static ArrayList<String> parmameterName = new ArrayList<String>();
+    private static ArrayList<String> parmameterType = new ArrayList<String>();
+    private static ArrayList<String> parmameterValue = new ArrayList<String>();
+    private static JPanel pane;
+    private static final String[] CustomMessage = new String[]{"Socket connected", "Socket Heartbeat import || Rate 0/8 || Latency " + new Random().nextInt(5) + "ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true", "Socket Heartbeat output || Rate 4/8 || Latency  " + new Random().nextInt(5) + "ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true", "Socket Disconnected"};
+    private static int Posy;
+    private static int Posx;
+    private static Boolean SocketMessage = false;
+    private static Boolean CustomSocketMessage = false;
+    private static LocalDateTime afkTime = null;
     private static boolean AFKMessages = false;
 
-    public static void Send() {
+    private static void Send() {
 
     }
 
-    public static void ReadSettings() {
+    private static void ReadSettings() {
         SocketMessage = false;
         CustomSocketMessage = false;
         AFKMessages = false;
@@ -84,12 +81,13 @@ public class OSCJframe {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException, OSCSerializeException {
-        GameStarted = LocalDateTime.now();
+        LocalDateTime gameStarted = LocalDateTime.now();
         ReadSettings();
 
         //oscPortOut.send(new OSCMessage("/avatar/parameters/_locked", Collections.singletonList(false)));
 
         OSCPortInBuilder port1 = new OSCPortInBuilder();
+        String port = "9000";
         port1.setPort(Integer.parseInt(port) + 1);
         OSCPortIn oscPortIn = port1.build();
         OSCMessageListener messageListener = new OSCMessageListener() {
@@ -122,10 +120,12 @@ public class OSCJframe {
 
         JMenuBar menuBar = new JMenuBar();
         JMenu menuFile = new JMenu("File");
-        JButton JButton = new JButton("Midi");
-        JButton menuSetting = new JButton("Settings");
+        JMenuItem JButton = new JMenuItem("Midi");
         JMenuItem menuItemExit = new JMenuItem("Load Current");
+        JMenuItem menuSetting = new JMenuItem("Settings");
+        JMenuItem menuSavedParameterEditor = new JMenuItem("Save Data Editor");
         JMenu menuIDTOOL = new JMenu("Cache Tool");
+        JMenu menuExtra = new JMenu("Extra");
         JMenuItem menuItemCacheCleaner = new JMenuItem("Cache cleaner");
         JMenuItem menuItemIDListMerger = new JMenuItem("ID Merger");
         JMenuItem menuItemInfoReader = new JMenuItem("ID Reader");
@@ -319,14 +319,23 @@ public class OSCJframe {
                 t.run();
             }
         });
+        menuSavedParameterEditor.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Thread t =new Thread(new SavedParameterEditor());
+                t.run();
+            }
+        });
 
 
         menuBar.add(menuFile);
         menuBar.add(menuIDTOOL);
         //menuBar.add(menuChat);
+        menuBar.add(menuExtra);
         menuBar.add(menuSetting);
-        menuBar.add(JButton);
-        window = new JFrame("VRChat tool by Catalyss");
+        menuExtra.add(JButton);
+        menuExtra.add(menuSavedParameterEditor);
+        JFrame window = new JFrame("VRChat tool by Catalyss");
         pane = new JPanel();
         pane.setOpaque(true);
         pane.setBackground(Color.GRAY);
@@ -383,13 +392,13 @@ public class OSCJframe {
         window.setBackground(Color.GRAY);
     }
 
-    public static int OnClose() throws OSCSerializeException, IOException {
+    private static int OnClose() throws OSCSerializeException, IOException {
         if (SocketMessage)
             oscPortOut.send(new OSCMessage("/chatbox/input", Collections.singletonList(getSocketMessage(0))));
         return JFrame.EXIT_ON_CLOSE;
     }
 
-    public static String getSocketMessage(int I) {
+    private static String getSocketMessage(int I) {
         String[] DefaultSocketMessages = new String[]{"Socket connected", "Socket Heartbeat import || Rate 0/8 || Latency " + new Random().nextInt(5) + "ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true", "Socket Heartbeat output || Rate 4/8 || Latency  " + new Random().nextInt(5) + "ms || nearest = server.vrchat.eu || Connected on 82.34.54.120 || Debug true", "Socket Disconnected"};
         if (!CustomSocketMessage && (!AFKMODE)) {
             afkTime = null;
@@ -413,7 +422,7 @@ public class OSCJframe {
         return CustomMessage[I];
     }
 
-    public static void MessageRecived(String Address, List<Object> Value, OSCMessageInfo info) throws OSCSerializeException, IOException, ParseException {
+    private static void MessageRecived(String Address, List<Object> Value, OSCMessageInfo info) throws OSCSerializeException, IOException, ParseException {
         /*boolean IsDefault = false;
         String[] DefaultParm =new String[]{"Viseme","Voice","GestureLeft","GestureLeftWeight","GestureRight","GestureRightWeight","TrackingType","VRMode","MuteSelf","Earmuffs","Grounded","AngularY","Upright","AFK","Seated","InStation","VelocityX","VelocityY","VelocityZ","IsLocal","AvatarVersion","VRCEmote","VRCFaceBlendH","VRCFaceBlendV"};
         String[] TypeList =new String[]{"i","T","F","f","s"};
@@ -440,7 +449,7 @@ public class OSCJframe {
         }
     }
 
-    public static void AviChange(String Address, OSCMessageInfo info) throws OSCSerializeException, IOException, ParseException {
+    private static void AviChange(String Address, OSCMessageInfo info) throws OSCSerializeException, IOException, ParseException {
         Posy = 0;
         Posx = 0;
         pane.removeAll();
@@ -537,7 +546,7 @@ public class OSCJframe {
 
     //"C:/Users/liamd/AppData/LocalLow/VRChat/VRChat/OSC/usr_0f13f3c9-e6d2-4f4b-99ba-74b870ceac44/Avatars/avtr_f2ffa90b-b73a-4d0a-9ce4-668b20e6f015.json"
 
-    public static void ParameterWindow(JSONObject check) throws OSCSerializeException, IOException {
+    private static void ParameterWindow(JSONObject check) throws OSCSerializeException, IOException {
 
         oscPortOut.send(new OSCMessage("/avatar/parameters/_locked", Collections.singletonList(false)));
         if (!check.has("input")) return;
