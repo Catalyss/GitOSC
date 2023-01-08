@@ -23,14 +23,11 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-
-import static java.lang.Thread.sleep;
+import java.util.Random;
 
 public class OSCJframe {
     private static boolean AFKMODE = false;
@@ -51,11 +48,6 @@ public class OSCJframe {
     private static Boolean CustomSocketMessage = false;
     private static LocalDateTime afkTime = null;
     private static boolean AFKMessages = false;
-
-    private static void Send() {
-
-    }
-
     private static void ReadSettings() {
         SocketMessage = false;
         CustomSocketMessage = false;
@@ -83,8 +75,6 @@ public class OSCJframe {
     public static void main(String[] args) throws IOException, InterruptedException, OSCSerializeException {
         LocalDateTime gameStarted = LocalDateTime.now();
         ReadSettings();
-
-        //oscPortOut.send(new OSCMessage("/avatar/parameters/_locked", Collections.singletonList(false)));
 
         OSCPortInBuilder port1 = new OSCPortInBuilder();
         String port = "9000";
@@ -238,54 +228,7 @@ public class OSCJframe {
                 }
             }
         });
-        //JButton menuChat = new JButton("ChatBox");
-        /*menuChat.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ///chatbox/input
-                JFrame ChatBox = new JFrame("ChatBox");
-                ChatBox.setSize(485 * 2, 485);
-                ChatBox.add(new JTextField());
-                JPanel panel = new JPanel();
-                //construct preComponents
-                String[] jcomp3Items = {"Item 3", "Item 33333333333", "Item 3"};
 
-                //construct components
-                JTextField jcomp1 = new JTextField(5);
-                JButton jcomp2 = new JButton("newButton");
-                JList jcomp3 = new JList(jcomp3Items);
-
-                //adjust size and set layout
-                panel.setPreferredSize(new Dimension(944, 569));
-                BorderLayout layout = new BorderLayout(0, 0);
-                panel.setLayout(layout);
-
-                //add components
-                panel.add(jcomp1, BorderLayout.CENTER);
-                panel.add(jcomp2, BorderLayout.SOUTH);
-                panel.add(jcomp3, BorderLayout.WEST);
-                panel.setBackground(Color.DARK_GRAY);
-                ChatBox.setBackground(Color.DARK_GRAY);
-
-                jcomp3.setBackground(Color.DARK_GRAY);
-                jcomp2.setBackground(Color.DARK_GRAY);
-                jcomp1.setBackground(Color.DARK_GRAY);
-
-                panel.setForeground(Color.LIGHT_GRAY);
-                ChatBox.setForeground(Color.LIGHT_GRAY);
-                jcomp3.setForeground(Color.LIGHT_GRAY);
-                jcomp2.setForeground(Color.LIGHT_GRAY);
-                jcomp1.setForeground(Color.LIGHT_GRAY);
-                ChatBox.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                ChatBox.getContentPane().add(panel);
-                ChatBox.pack();
-                ChatBox.setVisible(true);
-                ChatBox.setLocationRelativeTo(null);
-
-            }
-        });
-
-         */
         menuIDTOOL.add(menuItemCacheCleaner);
         menuIDTOOL.add(menuItemIDListMerger);
         menuIDTOOL.add(menuItemInfoReader);
@@ -330,7 +273,6 @@ public class OSCJframe {
 
         menuBar.add(menuFile);
         menuBar.add(menuIDTOOL);
-        //menuBar.add(menuChat);
         menuBar.add(menuExtra);
         menuBar.add(menuSetting);
         menuExtra.add(JButton);
@@ -544,7 +486,6 @@ public class OSCJframe {
         }
     }
 
-    //"C:/Users/liamd/AppData/LocalLow/VRChat/VRChat/OSC/usr_0f13f3c9-e6d2-4f4b-99ba-74b870ceac44/Avatars/avtr_f2ffa90b-b73a-4d0a-9ce4-668b20e6f015.json"
 
     private static void ParameterWindow(JSONObject check) throws OSCSerializeException, IOException {
 

@@ -1,17 +1,11 @@
 package org.GameEraser.Catalyss;
 
-import com.illposed.osc.OSCMessage;
-import com.illposed.osc.OSCSerializeException;
-
 import javax.sound.midi.*;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.Collections;
 
 public class MidiSender {
     public static JFrame frame =new JFrame("Midi Control Panel");

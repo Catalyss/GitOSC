@@ -1,4 +1,5 @@
 package org.GameEraser.Catalyss;
+
 import io.github.vrchatapi.ApiClient;
 import io.github.vrchatapi.ApiException;
 import io.github.vrchatapi.Configuration;
@@ -8,15 +9,15 @@ import io.github.vrchatapi.model.CurrentUser;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Scanner;
-import javax.swing.*;
-import javax.swing.event.*;
 
 public class AvatarReader implements Runnable {
     private CurrentUser result;

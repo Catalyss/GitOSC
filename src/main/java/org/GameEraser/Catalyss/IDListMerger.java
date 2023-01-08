@@ -4,10 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
 
 public class IDListMerger implements Runnable{
     @Override
@@ -173,60 +172,5 @@ public class IDListMerger implements Runnable{
                 merged.setText("");
             }
         });
-
-
-
-        /*
-        StringBuilder stringBuilder = new StringBuilder();
-        StringBuilder otherstringBuilder = new StringBuilder();
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader("IDS2.txt"));
-            String line = null;
-            String ls = System.getProperty("line.separator");
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-                stringBuilder.append(ls);
-            }
-            reader.close();
-
-        } catch (IOException e) {
-        }
-        String str = String.valueOf(stringBuilder);
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader("IDS1.txt"));
-            String line = null;
-            String ls = System.getProperty("line.separator");
-            while ((line = reader.readLine()) != null) {
-                otherstringBuilder.append(line);
-                otherstringBuilder.append(ls);
-            }
-            reader.close();
-
-        } catch (IOException e) {
-        }
-        String Base = String.valueOf(otherstringBuilder);
-        String line = null;
-        String ls = System.getProperty("line.separator");
-        otherstringBuilder.append(ls);
-        otherstringBuilder.append(ls);
-        otherstringBuilder.append(ls);
-        for (String st:str.split(";")
-        ) {
-            URL url = null;
-            if(!st.contains("avtr"))continue;
-            if(!Base.contains(st))continue;
-            otherstringBuilder.append(ls);
-            otherstringBuilder.append(";"+st);
-        }
-        FileWriter fwr = null;
-        try {
-            fwr = new FileWriter("ID_Merged.txt", false);
-            fwr.append(otherstringBuilder.toString());
-            fwr.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-         */
     }
 }
