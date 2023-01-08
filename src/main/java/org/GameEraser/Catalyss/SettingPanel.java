@@ -6,9 +6,8 @@ import org.json.simple.parser.JSONParser;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.net.URISyntaxException;
 import javax.swing.*;
 
 public class SettingPanel implements Runnable {
@@ -32,7 +31,7 @@ public class SettingPanel implements Runnable {
         JLabel jcomp6 = new JLabel("VRChat Login");
         JTextField LOGIN = new JTextField(5);
         JLabel jcomp8 = new JLabel("VRChat Password");
-        JTextField PASSWORD = new JTextField(5);
+        JPasswordField PASSWORD = new JPasswordField(5);
 
         frame.getContentPane().setPreferredSize(new Dimension(208, 129));
         frame.getContentPane().setLayout(null);
@@ -69,7 +68,7 @@ public class SettingPanel implements Runnable {
                 try {
                     OnClose(IP.getText(), PORT.getText(), LOGIN.getText(), PASSWORD.getText());
                     frame.setVisible (false);
-                } catch (IOException ex) {
+                } catch (Exception ex) {
                     ErrorPanel.Senderror(ex.toString());
                 }
             }
@@ -81,7 +80,7 @@ public class SettingPanel implements Runnable {
         frame.setBackground(Color.GRAY);
     }
 
-    private void OnClose(String IP,String PORT,String EMAIL,String PASSWORD) throws IOException {
+    private void OnClose(String IP,String PORT,String EMAIL,String PASSWORD) throws IOException, URISyntaxException {
         JSONObject obj =new JSONObject();
         obj.put("IP",IP);
         obj.put("PORT",PORT);
