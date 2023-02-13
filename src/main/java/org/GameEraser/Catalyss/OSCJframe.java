@@ -54,7 +54,7 @@ public class OSCJframe {
         AFKMessages = false;
         org.json.simple.JSONObject Json = new org.json.simple.JSONObject();
         try {
-            FileReader fr = new FileReader("Settings.json");
+            FileReader fr = new FileReader("src/resources/Settings.json");
             JSONParser parser = new JSONParser();
             Json = (org.json.simple.JSONObject) parser.parse(fr);
         } catch (Exception ignored) {
@@ -113,6 +113,8 @@ public class OSCJframe {
         JMenuItem JButton = new JMenuItem("Midi");
         JMenuItem menuItemExit = new JMenuItem("Load Current");
         JMenuItem menuSetting = new JMenuItem("Settings");
+        JMenuItem menuMinesweeper = new JMenuItem("Minesweeper♥");
+        JMenuItem MenuTwitch = new JMenuItem("Twitch");
         JMenuItem menuSavedParameterEditor = new JMenuItem("Save Data Editor");
         JMenu menuIDTOOL = new JMenu("Cache Tool");
         JMenu menuExtra = new JMenu("Extra");
@@ -262,6 +264,16 @@ public class OSCJframe {
                 t.run();
             }
         });
+        menuMinesweeper.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                EventQueue.invokeLater(() -> {
+
+                    var ex = new Minesweeper();
+                    ex.setVisible(true);
+                });
+            }
+        });
         menuSavedParameterEditor.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -270,6 +282,14 @@ public class OSCJframe {
             }
         });
 
+        //menuExtra.add(MenuTwitch);
+
+        MenuTwitch.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new Thread(new TwitchIntegration()).run();
+            }
+        });
 
         menuBar.add(menuFile);
         menuBar.add(menuIDTOOL);
@@ -277,6 +297,7 @@ public class OSCJframe {
         menuBar.add(menuSetting);
         menuExtra.add(JButton);
         menuExtra.add(menuSavedParameterEditor);
+        menuExtra.add(menuMinesweeper);
         JFrame window = new JFrame("VRChat tool by Catalyss");
         pane = new JPanel();
         pane.setOpaque(true);

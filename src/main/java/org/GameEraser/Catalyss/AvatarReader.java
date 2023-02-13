@@ -25,7 +25,7 @@ public class AvatarReader implements Runnable {
     private void Login(){
         JSONObject Json = new JSONObject();
         try {
-            FileReader fr = new FileReader("Settings.json");
+            FileReader fr = new FileReader("src/resources/Settings.json");
             JSONParser parser = new JSONParser();
             Json = (JSONObject) parser.parse(fr);
         } catch (Exception ignored) {
